@@ -26,6 +26,33 @@ public class IntroActivity extends AppCompatActivity {
     private TextView[] dots;
     private int[] layouts;
     private Button skipButton, nextButton;
+    // ViewPager change Listener
+    ViewPager.OnPageChangeListener viewPageChangeListener = new ViewPager.OnPageChangeListener() {
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            addBottomDots(position);
+            // changing the next button text 'NEXT' / 'GOT IT'
+            if (position == layouts.length - 1) {
+                // last page. make button text to GOT IT
+                nextButton.setText(getString(R.string.start));
+                skipButton.setVisibility(View.GONE);
+            } else {
+                // still pages are left
+                nextButton.setText(getString(R.string.next));
+                skipButton.setVisibility(View.VISIBLE);
+            }
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+    };
     private PreferencesManager preferencesManager;
 
     @Override
@@ -33,10 +60,18 @@ public class IntroActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         // Checking for first time launch
         preferencesManager = new PreferencesManager(this);
-        if (!preferencesManager.IsFirstTimeLaunch()){
-            launchHomeScreen();
+        if (!preferencesManager.IsLogin()) {
+            launchLoginScreen();
             finish();
         }
+//        if ((!preferencesManager.IsFirstTimeLaunch()) && (!preferencesManager.IsLogin())){
+//            launchHomeScreen();
+//            finish();
+//        }
+//        else if ((!preferencesManager.IsFirstTimeLaunch()) && (preferencesManager.IsLogin())){
+//            loginScreen();
+//            finish();
+//        }
         // Making notification bar transparent
         if (Build.VERSION.SDK_INT >= 21){
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
@@ -52,12 +87,12 @@ public class IntroActivity extends AppCompatActivity {
         // layouts of all welcome sliders
         // add few more layouts if you want
         layouts = new int[]{
-                R.layout.traking_welcome_slide,
+                R.layout.launch_welcome_slide,
                 R.layout.beloved_welcome_slide,
                 R.layout.activities_welcome_slide,
                 R.layout.transportation_welcome_slide
         };
-        
+
         // Adding Bottom Dots
         addBottomDots(0);
 
@@ -70,7 +105,7 @@ public class IntroActivity extends AppCompatActivity {
         skipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                launchHomeScreen();
+                launchLoginScreen();
             }
         });
 
@@ -84,51 +119,17 @@ public class IntroActivity extends AppCompatActivity {
                     // Move to the next screen
                     viewPager.setCurrentItem(current);
                 }else {
-                    launchHomeScreen();
+                    launchLoginScreen();
                 }
             }
         });
 
     }
 
-    private int getItem(int i) {
-        return viewPager.getCurrentItem() + i;
-    }
-
-    // ViewPager change Listener
-    ViewPager.OnPageChangeListener viewPageChangeListener = new ViewPager.OnPageChangeListener(){
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-        }
-
-        @Override
-        public void onPageSelected(int position) {
-            addBottomDots(position);
-            // changing the next button text 'NEXT' / 'GOT IT'
-            if (position == layouts.length - 1){
-                // last page. make button text to GOT IT
-                nextButton.setText(getString(R.string.start));
-                skipButton.setVisibility(View.GONE);
-            }else {
-                // still pages are left
-                nextButton.setText(getString(R.string.next));
-                skipButton.setVisibility(View.VISIBLE);
-            }
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
-
-        }
-    };
-
-    private void changeStatusBarColor() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-            Window window = getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.TRANSPARENT);
-        }
+    private void launchLoginScreen() {
+        preferencesManager.SetLogin(false);
+        startActivity(new Intent(IntroActivity.this, LoginActivity.class));
+        finish();
     }
 
     private void addBottomDots(int currentPage) {
@@ -149,6 +150,18 @@ public class IntroActivity extends AppCompatActivity {
         }
     }
 
+    private void changeStatusBarColor() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.TRANSPARENT);
+        }
+    }
+
+    private int getItem(int i) {
+        return viewPager.getCurrentItem() + i;
+    }
+
     private void launchHomeScreen() {
         preferencesManager.SetFirstTimeLaunch(false);
         startActivity(new Intent(IntroActivity.this, MainActivity.class));
@@ -159,6 +172,11 @@ public class IntroActivity extends AppCompatActivity {
         private LayoutInflater layoutInflater;
 
         public  MyViewPagerAdapter(){}
+
+        @Override
+        public int getCount() {
+            return layouts.length;
+        }
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
@@ -172,11 +190,6 @@ public class IntroActivity extends AppCompatActivity {
         public void destroyItem(ViewGroup container, int position, Object object) {
             View view = (View) object;
             container.removeView(view);
-        }
-
-        @Override
-        public int getCount() {
-            return layouts.length;
         }
 
         @Override

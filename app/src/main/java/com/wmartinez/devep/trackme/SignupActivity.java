@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 public class SignupActivity extends AppCompatActivity {
 
     private EditText inputEmail, inputPassword;
-    private Button btnSingIn, btnSingUp, btnResetPassword;
+    private Button btnSingIn, btnSingUp;
     private ProgressBar progressBar;
     private FirebaseAuth auth;
 
@@ -32,7 +32,6 @@ public class SignupActivity extends AppCompatActivity {
 
         btnSingIn = (Button)findViewById(R.id.sign_in_button);
         btnSingUp = (Button)findViewById(R.id.sign_up_button);
-        btnResetPassword = (Button)findViewById(R.id.btn_reset_passwordS);
         inputEmail = (EditText)findViewById(R.id.emailS);
         inputPassword = (EditText)findViewById(R.id.passwordS);
         progressBar = (ProgressBar)findViewById(R.id.progressBarS);
@@ -51,16 +50,16 @@ public class SignupActivity extends AppCompatActivity {
                 String password = inputPassword.getText().toString().trim();
 
                 if (TextUtils.isEmpty(email)){
-                    Toast.makeText(getApplicationContext(), "Enter email address", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.enter_email_address, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (TextUtils.isEmpty(password)){
-                    Toast.makeText(getApplicationContext(), "Enter password", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.enter_password, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 if (password.length() < 6){
-                    Toast.makeText(getApplicationContext(), "Password too short, enter minimun 6 chracters", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.minimum_password, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -84,13 +83,6 @@ public class SignupActivity extends AppCompatActivity {
                                 }
                             }
                         });
-            }
-        });
-
-        btnResetPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //startActivity(new Intent(SignupActivity.this, ResetPasswordActivity.class));
             }
         });
     }

@@ -49,5 +49,7 @@
     <color name="btn_login_bg">#eceef1</color>
     <color name="lbl_name">#333333</color>
     <color name="btn_logout_bg">#ff6861</color>
+    <color name="btn_light">#536DFE</color>
+    <color name="btn_normal">#FF5252</color>
 
 </resources>

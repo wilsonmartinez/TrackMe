@@ -1,6 +1,9 @@
 package com.wmartinez.devep.trackme;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
@@ -8,10 +11,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -28,13 +33,23 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.Gson;
+import com.wmartinez.devep.trackme.pojo.UserData;
+import com.wmartinez.devep.trackme.restApi.EndPoints;
+import com.wmartinez.devep.trackme.restApi.adapter.RestApiAdapter;
+import com.wmartinez.devep.trackme.restApi.model.UserLocationResponse;
+
+import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class TrackActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleMap.OnMyLocationButtonClickListener, ActivityCompat.OnRequestPermissionsResultCallback,
         LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    //Request code for location permission request.
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
@@ -45,22 +60,15 @@ public class TrackActivity extends FragmentActivity implements OnMapReadyCallbac
      */
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
             UPDATE_INTERVAL_IN_MILLISECONDS / 2;
-    // Keys for storing activity state in the Bundle.
-    protected final static String REQUESTING_LOCATION_UPDATES_KEY = "requesting-location-updates-key";
-    protected final static String LOCATION_KEY = "location-key";
-    protected final static String LAST_UPDATED_TIME_STRING_KEY = "last-updated-time-string-key";
-    //Flag indicating whether a requested permission has been denied after returning in
-    private boolean mPermissionDenied = false;
-    private static GoogleMap mMap;
-    private Marker mCurrLocationMarker;
-    private static String placeText;
-    private static double lat, lng;
     protected static final String TAG = "TrackActivity";
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-
+    //Request code for location permission request.
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    // Variables to management of the Followed data.
+    private static String nickname;
+    private static String email;
+    private static ArrayList<UserData> userDatas, datasLocation, arrayLastLocation;
+    private static PolylineOptions polylineOptions;
+    private static GoogleMap mMap;
     /**
      * Provides the entry point to Google Play services.
      */
@@ -69,24 +77,14 @@ public class TrackActivity extends FragmentActivity implements OnMapReadyCallbac
      * Stores parameters for requests to the FusedLocationProviderApi.
      */
     protected LocationRequest mLocationRequest;
+    private FloatingActionButton btnDrawPath;
     /**
-     * Represents a geographical location.
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
-    protected Location mCurrentLocation;
-    /**
-     * Represents a geographical location.
-     */
-    protected static Location mLastLocation;
-    /**
-     * Tracks the status of the location updates request. Value changes when the user presses the
-     * Start Updates and Stop Updates buttons.
-     */
-    protected Boolean mRequestingLocationUpdates;
-
-    /**
-     * Time when the location was updated represented as a String.
-     */
-    protected String mLastUpdateTime;
+    //Flag indicating whether a requested permission has been denied after returning in
+    private boolean mPermissionDenied = false;
+    private Marker mCurrLocationMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,14 +98,18 @@ public class TrackActivity extends FragmentActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        /**++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++**/
-//        Bundle bundle = getIntent().getExtras();
-//        if (bundle == null) {
-//            return;
-//        } else {
-//            placeText = "My Job";
-//        }
-        /**++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++**/
+
+        userDatas = new ArrayList<>();
+        polylineOptions = new PolylineOptions();
+        btnDrawPath = (FloatingActionButton) findViewById(R.id.btn_draw_his_path);
+
+        Intent intent = getIntent();
+        nickname = intent.getStringExtra("user_name");
+        email = intent.getStringExtra("email");
+        if (email != null) {
+            email = email.replace('.', '_');
+        }
+
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
     }
@@ -151,90 +153,48 @@ public class TrackActivity extends FragmentActivity implements OnMapReadyCallbac
 //        }
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-//        mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-        // Initialize the Google Play Services
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED){
-                buildGoogleApiClient();
-                mMap.setMyLocationEnabled(true);
-            }
-        }else {
-            buildGoogleApiClient();
-            mMap.setMyLocationEnabled(true);
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        if (mPermissionDenied) {
+            showMissingPermissionError();
+            mPermissionDenied = false;
         }
-//        MapStyleOptions style = MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json);
-//        enableMyLocation();
-//        if (mLastLocation != null) {
-//            lat = mLastLocation.getLatitude();
-//            lng = mLastLocation.getLongitude();
-//        }
-//        LatLng lugar = new LatLng(lat, lng);
-////        mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory
-////                .fromResource(R.drawable.mapmarker_flag5_azure))
-////                .anchor(0.0f, 1.0f)
-////                //.position(lugar)
-////                .title("Marker in " + placeText));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(lugar));
-//        mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-//        mMap.moveCamera(CameraUpdateFactory.zoomTo(16));
-//        mMap.setMapStyle(style);
     }
 
+    /**
+     * Displays a dialog with error message explaining that the location permission is missing.
+     */
+    private void showMissingPermissionError() {
+        PermissionUtils.PermissionDeniedDialog
+                .newInstance(true).show(getSupportFragmentManager(), "dialog");
+    }
 
-
-//    /**
-//     * Enables the My Location layer if the fine location permission has been granted.
-//     */
-//    private void enableMyLocation() {
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            // Permission to access the location is missing.
-//            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
-//                    Manifest.permission.ACCESS_FINE_LOCATION, true);
-//        } else if (mMap != null) {
-//            // Access to the location has been granted to the app
-//            mMap.setMyLocationEnabled(true);
-//
-//        }
-//    }
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
 
     @Override
-    public boolean onMyLocationButtonClick() {
-        //Toast.makeText(this, "My Location button clicked", Toast.LENGTH_SHORT).show();
-        // Return false so that we don't consume the event and the default behavior still occurs
-        // (the camera animates to the user's current position).
-        return false;
+    public void onStart() {
+        super.onStart();
+        //mGoogleApiClient.connect();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mGoogleApiClient.disconnect();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-//        //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
-//            return;
-//        }
-//        if (PermissionUtils.isPermissionGranted(permissions, grantResults,
-//                Manifest.permission.ACCESS_FINE_LOCATION)) {
-//            // Enable the my location layer if the permission has been granted.
-//            enableMyLocation();
-//        } else {
-//            // Display the missing permission error dialog when the fragments resume.
-//            mPermissionDenied = true;
-//        }
+
         switch (requestCode){
             case LOCATION_PERMISSION_REQUEST_CODE:{
                 // If request is cancelled, the result arrays is empty.
@@ -262,85 +222,6 @@ public class TrackActivity extends FragmentActivity implements OnMapReadyCallbac
         }
     }
 
-    @Override
-    protected void onResumeFragments() {
-        super.onResumeFragments();
-        if (mPermissionDenied) {
-            showMissingPermissionError();
-            mPermissionDenied = false;
-        }
-    }
-
-    /**
-     * Displays a dialog with error message explaining that the location permission is missing.
-     */
-    private void showMissingPermissionError() {
-        PermissionUtils.PermissionDeniedDialog
-                .newInstance(true).show(getSupportFragmentManager(), "dialog");
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        mLastLocation = location;
-        if (mCurrLocationMarker != null){
-            mCurrLocationMarker.remove();
-        }
-
-        // Place current location marker
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory
-                .defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
-        mCurrLocationMarker = mMap.addMarker(markerOptions);
-        // Move the Map Camera
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(16));
-        // Define Map Style ... depend the hour day...
-        MapStyleOptions style = MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json);
-        try {
-            // Customise the styling of the base map using a JSON object defined
-            // in a raw resource file.
-            boolean success = mMap.setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(
-                            this, R.raw.style_json));
-
-            if (!success) {
-                Log.e("MapsActivityRaw", "Style parsing failed.");
-            }
-        } catch (Resources.NotFoundException e) {
-            Log.e("MapsActivityRaw", "Can't find style.", e);
-        }
-        mMap.setMapStyle(style);
-        // Stop the Location Updates
-        if (mGoogleApiClient != null){
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        }
-    }
-
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        //mGoogleApiClient.connect();
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mGoogleApiClient.disconnect();
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-    }
-
     /**
      * Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
      */
@@ -351,6 +232,155 @@ public class TrackActivity extends FragmentActivity implements OnMapReadyCallbac
                 .addApi(LocationServices.API)
                 .build();
         mGoogleApiClient.connect();
+    }
+
+    /**
+     * Manipulates the map once available.
+     * This callback is triggered when the map is ready to be used.
+     * This is where we can add markers or lines, add listeners or move the camera. In this case,
+     * we just add a marker near Sydney, Australia.
+     * If Google Play services is not installed on the device, the user will be prompted to install
+     * it inside the SupportMapFragment. This method will only be triggered once the user has
+     * installed Google Play services and returned to the app.
+     */
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+//        mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+        // Initialize the Google Play Services
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                buildGoogleApiClient();
+                mMap.setMyLocationEnabled(true);
+            }
+        } else {
+            buildGoogleApiClient();
+            mMap.setMyLocationEnabled(true);
+        }
+
+//        SharedPreferences preferencesAccount = getSharedPreferences("account", Context.MODE_PRIVATE);
+//        String userAccount = preferencesAccount.getString("edit_account", null);
+//        if (userAccount != null){
+        if (email != null) {
+            RestApiAdapter adapter = new RestApiAdapter();
+            Gson gsonLastLocation = adapter.buildGsonDeserializerLastLocation();
+            EndPoints pointsLastLocation = adapter.setConnectionRestAPIHeroku(gsonLastLocation);
+
+            Call<UserLocationResponse> callLastLocation = pointsLastLocation.getUserLocation(email);
+            callLastLocation.enqueue(new Callback<UserLocationResponse>() {
+                @Override
+                public void onResponse(Call<UserLocationResponse> call, Response<UserLocationResponse> response) {
+                    UserLocationResponse lastLocation = response.body();
+                    if (lastLocation.getUserData() != null) {
+                        arrayLastLocation = lastLocation.getUserData();
+                        LatLng latLng = new LatLng(arrayLastLocation.get(0).getLatitude(), arrayLastLocation.get(0).getLongitude());
+                        MarkerOptions markerOptions = new MarkerOptions();
+                        markerOptions.position(latLng);
+                        markerOptions.title(getString(R.string.marker_last_location));
+                        markerOptions.icon(BitmapDescriptorFactory
+                                .defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                        mCurrLocationMarker = mMap.addMarker(markerOptions);
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                        mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                        mMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+                        // Define Map Style ... depend the hour day...
+                        MapStyleOptions style = MapStyleOptions.loadRawResourceStyle(getApplicationContext(), R.raw.style_json);
+                        try {
+                            // Customise the styling of the base map using a JSON object defined
+                            // in a raw resource file.
+                            boolean success = mMap.setMapStyle(
+                                    MapStyleOptions.loadRawResourceStyle(
+                                            getApplicationContext(), R.raw.style_json));
+
+                            if (!success) {
+                                Log.e("MapsActivityRaw", "Style parsing failed.");
+                            }
+                        } catch (Resources.NotFoundException e) {
+                            Log.e("MapsActivityRaw", "Can't find style.", e);
+                        }
+                        mMap.setMapStyle(style);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<UserLocationResponse> call, Throwable t) {
+
+                }
+            });
+        }
+
+        btnDrawPath.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SharedPreferences preferencesAccount = getSharedPreferences("account", Context.MODE_PRIVATE);
+                String userAccount = preferencesAccount.getString("edit_account", null);
+                if (email != null) {
+                    RestApiAdapter restApiAdapter = new RestApiAdapter();
+                    Gson gsonLocations = restApiAdapter.buildGsonDeserializerUserLocations();
+                    EndPoints endPoints = restApiAdapter.setConnectionRestAPIHeroku(gsonLocations);
+
+                    Call<UserLocationResponse> responseCall = endPoints.getUserLocation(email);
+                    responseCall.enqueue(new Callback<UserLocationResponse>() {
+                        @Override
+                        public void onResponse(Call<UserLocationResponse> call, Response<UserLocationResponse> response) {
+                            UserLocationResponse locationResponse = response.body();
+                            if (locationResponse.getUserData() != null) {
+                                datasLocation = locationResponse.getUserData();
+                                userDatas.addAll(datasLocation);
+                                for (int i = 0; i < userDatas.size(); i++) {
+                                    // Make a polyline
+                                    polylineOptions.add(new LatLng(userDatas.get(i).getLatitude(), userDatas.get(i).getLongitude()));
+                                    // Place current location marker
+                                }
+                                polylineOptions.clickable(true);
+                                polylineOptions.geodesic(true);
+                                polylineOptions.color(-16800000);
+                                polylineOptions.width(20);
+                                mMap.addPolyline(polylineOptions);
+                                mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                                mMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+                                // Define Map Style ... depend the hour day...
+                                MapStyleOptions style = MapStyleOptions.loadRawResourceStyle(getApplicationContext(), R.raw.style_json);
+                                try {
+                                    // Customise the styling of the base map using a JSON object defined
+                                    // in a raw resource file.
+                                    boolean success = mMap.setMapStyle(
+                                            MapStyleOptions.loadRawResourceStyle(
+                                                    getApplicationContext(), R.raw.style_json));
+
+                                    if (!success) {
+                                        Log.e("MapsActivityRaw", "Style parsing failed.");
+                                    }
+                                } catch (Resources.NotFoundException e) {
+                                    Log.e("MapsActivityRaw", "Can't find style.", e);
+                                }
+                                mMap.setMapStyle(style);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<UserLocationResponse> call, Throwable t) {
+
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        //Toast.makeText(this, "My Location button clicked", Toast.LENGTH_SHORT).show();
+        // Return false so that we don't consume the event and the default behavior still occurs
+        // (the camera animates to the user's current position).
+        return false;
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
     }
 
     /**
@@ -374,11 +404,11 @@ public class TrackActivity extends FragmentActivity implements OnMapReadyCallbac
 
     @Override
     public void onConnectionSuspended(int i) {
-
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + connectionResult.getErrorCode());
     }
+
 }
