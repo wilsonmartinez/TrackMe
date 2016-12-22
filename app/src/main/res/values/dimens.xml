@@ -22,5 +22,6 @@
     <dimen name="layout_marginLeft">4dp</dimen>
     <dimen name="layout_marginRight">4dp</dimen>
     <dimen name="layout_marginBottom">4dp</dimen>
+    <dimen name="dialog_text_size">18sp</dimen>
 
 </resources>

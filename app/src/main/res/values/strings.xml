@@ -41,7 +41,7 @@
     <string name="btn_login">LOGIN</string>
     <string name="btn_link_to_register">Not a member? Get registered now!</string>
     <string name="btn_link_to_login">Already registered. Login Me!</string>
-    <string name="title_activity_reset_password">ResetPasswordActivity</string>
+    <string name="title_activity_reset_password">Reset Password Activity</string>
     <string name="btn_forgot_password">Forgot your password?</string>
     <string name="btn_reset_password">Reset Password</string>
     <string name="btn_back"><![CDATA[<< Back]]></string>
@@ -51,7 +51,7 @@
     <string name="btn_remove">Remove</string>
     <string name="btn_sign_out">Sign Out</string>
     <string name="lbl_forgot_password">Forgot password?</string>
-    <string name="forgot_password_msg">We just need your registered Email Id to sent you password reset instructions.</string>
+    <string name="forgot_password_msg">We just need your registered Email Id to send you password reset instructions.</string>
     <string name="title_activity_track">Map</string>
 
     <string name="sign_out">Sign Out</string>
@@ -69,8 +69,30 @@
     <!--    Permissions    -->
     <string name="permission_rationale_location">Access to the location service is required to demonstrate the \'my location\' feature, which shows your current location on the map.</string>
     <string name="location_permission_denied">This sample requires location permission to enable the \'my location\' layer. Please try again and grant access to use the location.\nIf the permission has been permanently denied, it can be enabled from the System Settings &gt; Apps &gt; \'Google Maps API Demos\'.</string>
-    <string name="permission_required_toast">Location permission is required for this demo.</string>
+    <string name="permission_required_toast">Location permission is required.</string>
+
+
     <string name="card_view_user_name">User Name</string>
     <string name="main_activity_title">Users</string>
+
+    <string-array name="gender_array">
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
+
+    <string-array name="activities_array">
+        <item>None</item>
+        <item>Walk</item>
+        <item>Run</item>
+        <item>Drive</item>
+    </string-array>
+
+    <string-array name="transportation_array">
+        <item>None</item>
+        <item>Bicycle</item>
+        <item>Motorcycle</item>
+        <item>Car</item>
+        <item>Bus</item>
+    </string-array>
 
 </resources>

@@ -110,19 +110,22 @@ public class LoginActivity extends AppCompatActivity {
                                     SharedPreferences preferencesAccount = getSharedPreferences("account", Context.MODE_PRIVATE);
                                     SharedPreferences.Editor editorAccount = preferencesAccount.edit();
                                     String reformatAccount = email;
+                                    String token = FirebaseInstanceId.getInstance().getToken();
                                     reformatAccount = reformatAccount.replace('.', '_');
                                     editorAccount.putString("edit_account", reformatAccount);
+                                    editorAccount.putString("device_id", token);
+                                    editorAccount.putBoolean("bStart", false);
                                     //String editAccount = preferencesAccount.getString("edit_account", email);
                                     if (editorAccount.commit()) {
                                         Snackbar.make(view, "Cuenta guardada!!!", Snackbar.LENGTH_LONG)
                                                 .setAction("EditAction", null).show();
-                                        String token = FirebaseInstanceId.getInstance().getToken();
-                                        sendRecordToken(token, email);
+                                        sendRecordToken(token, reformatAccount);
+                                        //sendRecordToken(token, email);
                                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                         startActivity(intent);
                                         finish();
                                     } else {
-                                        Snackbar.make(view, "Fallo al guardar cuneta", Snackbar.LENGTH_LONG)
+                                        Snackbar.make(view, "Fallo al guardar cuenta", Snackbar.LENGTH_LONG)
                                                 .setAction("EditAction", null).show();
                                     }
                                 }
@@ -141,7 +144,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 UserResponse userResponse = response.body();
-                Log.d("DEVICE_ID", userResponse.getDevice_id());
+//                Log.d("DEVICE_ID", userResponse.getDevice_id());
                 Log.d("USER_NAME", userResponse.getUser_name());
             }
 

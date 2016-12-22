@@ -1,9 +1,7 @@
 package com.wmartinez.devep.trackme;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
@@ -314,8 +312,8 @@ public class TrackActivity extends FragmentActivity implements OnMapReadyCallbac
         btnDrawPath.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SharedPreferences preferencesAccount = getSharedPreferences("account", Context.MODE_PRIVATE);
-                String userAccount = preferencesAccount.getString("edit_account", null);
+                //SharedPreferences preferencesAccount = getSharedPreferences("account", Context.MODE_PRIVATE);
+                //String userAccount = preferencesAccount.getString("edit_account", null);
                 if (email != null) {
                     RestApiAdapter restApiAdapter = new RestApiAdapter();
                     Gson gsonLocations = restApiAdapter.buildGsonDeserializerUserLocations();

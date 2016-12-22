@@ -33,38 +33,98 @@
         android:hint="@string/hint_email"
         android:inputType="textEmailAddress"/>
 
-    <EditText
-        android:id="@+id/dialog_gender"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/layout_marginBottom"
-        android:layout_marginLeft="@dimen/layout_marginLeft"
-        android:layout_marginRight="@dimen/layout_marginRight"
-        android:layout_marginTop="@dimen/layout_marginTop"
-        android:hint="@string/hint_gender"
-        android:inputType="textNoSuggestions"/>
+        android:orientation="horizontal"
+        android:paddingLeft="6sp"
+        android:paddingRight="6sp">
 
-    <EditText
-        android:id="@+id/dialog_activities"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/layout_marginBottom"
-        android:layout_marginLeft="@dimen/layout_marginLeft"
-        android:layout_marginRight="@dimen/layout_marginRight"
-        android:layout_marginTop="@dimen/layout_marginTop"
-        android:hint="@string/hint_activities"
-        android:inputType="textNoSuggestions"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/layout_marginBottom"
+            android:layout_marginLeft="@dimen/layout_marginLeft"
+            android:layout_marginRight="@dimen/layout_marginRight"
+            android:layout_marginTop="@dimen/layout_marginTop"
+            android:layout_weight="1"
+            android:text="@string/hint_gender"
+            android:textSize="@dimen/dialog_text_size"/>
 
-    <EditText
-        android:id="@+id/dialog_transportation"
+        <Spinner
+            android:id="@+id/spinner_gender"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/layout_marginBottom"
+            android:layout_marginLeft="@dimen/layout_marginLeft"
+            android:layout_marginRight="@dimen/layout_marginRight"
+            android:layout_marginTop="@dimen/layout_marginTop"
+            android:layout_weight="1"
+            android:entries="@array/gender_array"
+            android:prompt="@string/hint_gender"/>
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/layout_marginBottom"
-        android:layout_marginLeft="@dimen/layout_marginLeft"
-        android:layout_marginRight="@dimen/layout_marginRight"
-        android:layout_marginTop="@dimen/layout_marginTop"
-        android:hint="@string/hint_transportation"
-        android:inputType="textNoSuggestions"/>
+        android:orientation="horizontal"
+        android:paddingLeft="6sp"
+        android:paddingRight="6sp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/layout_marginBottom"
+            android:layout_marginLeft="@dimen/layout_marginLeft"
+            android:layout_marginRight="@dimen/layout_marginRight"
+            android:layout_marginTop="@dimen/layout_marginTop"
+            android:layout_weight="1"
+            android:text="@string/hint_activities"
+            android:textSize="@dimen/dialog_text_size"/>
+
+        <Spinner
+            android:id="@+id/spinner_activities"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/layout_marginBottom"
+            android:layout_marginLeft="@dimen/layout_marginLeft"
+            android:layout_marginRight="@dimen/layout_marginRight"
+            android:layout_marginTop="@dimen/layout_marginTop"
+            android:layout_weight="1"
+            android:entries="@array/activities_array"
+            android:prompt="@string/hint_activities"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="6sp"
+        android:paddingRight="6sp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/layout_marginBottom"
+            android:layout_marginLeft="@dimen/layout_marginLeft"
+            android:layout_marginRight="@dimen/layout_marginRight"
+            android:layout_marginTop="@dimen/layout_marginTop"
+            android:layout_weight="1"
+            android:text="@string/hint_transportation"
+            android:textSize="@dimen/dialog_text_size"/>
+
+        <Spinner
+            android:id="@+id/spinner_transportation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/layout_marginBottom"
+            android:layout_marginLeft="@dimen/layout_marginLeft"
+            android:layout_marginRight="@dimen/layout_marginRight"
+            android:layout_marginTop="@dimen/layout_marginTop"
+            android:layout_weight="1"
+            android:entries="@array/transportation_array"
+            android:prompt="@string/hint_transportation"/>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -73,16 +133,18 @@
 
         <Button
             android:id="@+id/dialog_negative_btn"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:layout_weight="1"
             android:text="@string/dialog_btn_cancel"/>
 
         <Button
             android:id="@+id/dialog_positive_btn"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:layout_weight="1"
             android:text="@string/dialog_btn_set"/>
     </LinearLayout>
 
