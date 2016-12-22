@@ -1,0 +1,101 @@
+<resources>
+    <string name="app_name">Track Me</string>
+
+    <string name="title_activity_welcome">Home Screen</string>
+    <string name="next">PROCHAIN</string>
+    <string name="skip">SAUTER</string>
+    <string name="start">JE L\'AI</string>
+
+    <string name="slide_1_title">Track Me!</string>
+    <string name="slide_1_desc">Le moyen le plus facile de garder les soins de vos bien-aimés!</string>
+
+    <string name="slide_2_title">Les a gardés chemin</string>
+    <string name="slide_2_desc">Choisis qui est ta bien-aimée!</string>
+
+    <string name="slide_3_title">Activités</string>
+    <string name="slide_3_desc">Choisissez les activités principales que vos bien-aimés font!</string>
+
+    <string name="slide_4_title">Transport</string>
+    <string name="slide_4_desc">Choisissez le principal moyen de transport de vos bien-aimés!</string>
+
+
+    <string name="action_sign_in_short">Registre</string>
+    <string name="email">Email</string>
+    <string name="minimum_password">Mot de passe trop court, entrez au moins 6 caractères!</string>
+    <string name="auth_failed">Échec de l\'authentification, vérifiez votre courriel et votre mot de passe ou inscrivez-vous</string>
+    <string name="change_email">Changer l\'e-mail</string>
+    <string name="change_password">Changer le mot de passe</string>
+    <string name="send_password_reset_email">Envoyer le mot de passe de réinitialisation</string>
+    <string name="remove_user">Supprimer l\'utilisateur</string>
+    <string name="new_pass">Nouveau mot de passe</string>
+    <string name="title_activity_profile">Firebase</string>
+    <string name="title_activity_login">Se connecter</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_gender">Le genre</string>
+    <string name="hint_activities">Activités</string>
+    <string name="hint_transportation">Transport</string>
+    <string name="hint_nickname">Nickname</string>
+    <string name="hint_username">Nom d\'utilisateur</string>
+    <string name="hint_password">Mot de passe</string>
+    <string name="hint_name">Fullname</string>
+    <string name="btn_login">S\'IDENTIFIER</string>
+    <string name="btn_link_to_register">Pas un membre? Inscrivez-vous maintenant!</string>
+    <string name="btn_link_to_login">Déjà enregistré. Identifiez-vous!</string>
+    <string name="title_activity_reset_password">Reset Password Activity</string>
+    <string name="btn_forgot_password">Mot de passe oublié?</string>
+    <string name="btn_reset_password">Réinitialiser le mot de passe</string>
+    <string name="btn_back"><![CDATA[<< REVENIR]]></string>
+    <string name="hint_new_email">Nouveau courriel</string>
+    <string name="btn_change">Allez à la carte</string>
+    <string name="btn_send">Envoyer</string>
+    <string name="btn_remove">Retirer</string>
+    <string name="btn_sign_out">Se déconnecter</string>
+    <string name="lbl_forgot_password">Mot de passe oublié?</string>
+    <string name="forgot_password_msg">Nous avons juste besoin de votre identifiant de courriel enregistré pour vous envoyer des instructions de réinitialisation de mot de passe.</string>
+    <string name="title_activity_track">Carte</string>
+
+    <string name="sign_out">Se déconnecter</string>
+    <string name="change_account">Changer d\'utilisateur</string>
+    <string name="settings">Paramètres</string>
+    <string name="enter_email_address">Entrer l\'adresse e-mail</string>
+    <string name="enter_password">Entrer le mot de passe</string>
+    <string name="menu_start">DÉMARRER</string>
+    <string name="menu_stop">ARRÊTEZ</string>
+    <string name="marker_last_location">Dernier lieu</string>
+    <string name="title_alert_dialog">Paramètres utilisateur</string>
+    <string name="dialog_btn_set">ÉTABLIR</string>
+    <string name="dialog_btn_cancel">ANNULER</string>
+
+    <!--    Permissions    -->
+    <string name="permission_rationale_location">
+        L\'accès au service de localisation est nécessaire pour démontrer la fonctionnalité \'Track Me\', qui indique votre position actuelle sur la carte.</string>
+    <string name="location_permission_denied">
+        Cet exemple requiert l\'autorisation de localisation pour activer la couche \'Track Me\'. Veuillez réessayer et accorder l\'accès pour utiliser l\'emplacement.
+        \nSi l\'autorisation a été refusée en permanence, elle peut être activée à partir des paramètres système &gt; Applications &gt; \'Démos de l\'API Google Maps \'.</string>
+    <string name="permission_required_toast">L\'autorisation d\'emplacement est requise.</string>
+
+
+    <string name="card_view_user_name">Nom d\'utilisateur</string>
+    <string name="main_activity_title">Utilisateurs</string>
+
+    <string-array name="gender_array">
+        <item>Mâle</item>
+        <item>Femelle</item>
+    </string-array>
+
+    <string-array name="activities_array">
+        <item>Aucun</item>
+        <item>Marche</item>
+        <item>Courir</item>
+        <item>Conduire</item>
+    </string-array>
+
+    <string-array name="transportation_array">
+        <item>Aucun</item>
+        <item>Vélo</item>
+        <item>Moto</item>
+        <item>Voiture</item>
+        <item>Autobus</item>
+    </string-array>
+
+</resources>
